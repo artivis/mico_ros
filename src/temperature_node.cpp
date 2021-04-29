@@ -1,5 +1,5 @@
 #include "mico_ros/macro.h"
-#include "mico_ros/temperature.h"
+#include "mico_ros/sensors/temperature.h"
 
 #include <stdio.h>
 
