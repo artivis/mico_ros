@@ -5,10 +5,10 @@
 
 namespace micoros {
 
-constexpr unsigned int LED_PIN = PICO_DEFAULT_LED_PIN;
+#define LED_PIN PICO_DEFAULT_LED_PIN
 
 // See Pi Pico C/C++ SDK 4.1.1. hardware_adc
-constexpr unsigned int TEMPERATURE_SENSOR_INPUT = 4;
+#define TEMPERATURE_SENSOR_INPUT 4
 
 // 9 characters + null terminating
 constexpr char PICO_FRAME[10] = "pico_link";
@@ -20,8 +20,8 @@ constexpr char PICO_FRAME[10] = "pico_link";
 // constexpr unsigned int SDA_PIN = 1;
 // constexpr unsigned int SCL_PIN = 2;
 
-constexpr unsigned int SDA_PIN = PICO_DEFAULT_I2C_SDA_PIN; // 4
-constexpr unsigned int SCL_PIN = PICO_DEFAULT_I2C_SCL_PIN; // 5
+#define SDA_PIN PICO_DEFAULT_I2C_SDA_PIN // 4
+#define SCL_PIN PICO_DEFAULT_I2C_SCL_PIN // 5
 
 } // namespace micoros
 
