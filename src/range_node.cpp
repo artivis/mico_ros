@@ -1,5 +1,6 @@
 #include "mico_ros/pico_utils.h"
 #include "mico_ros/macro.h"
+#include "mico_ros/ros_utils.h"
 #include "mico_ros/sensors/range.h"
 
 #include <stdio.h>
@@ -17,17 +18,6 @@ using namespace micoros;
 #define GPIO_TRIGGER 7
 
 RangeSensor range_sensor(GPIO_ECHO, GPIO_TRIGGER);
-
-template<typename Msg>
-void fill_msg_stamp(Msg& msg) {
-  // absolute_time_t now = get_absolute_time();
-  // absolute_time_t milliseconds = (now / 1000) % 1000;
-  // absolute_time_t seconds = (((now / 1000) - milliseconds) / 1000) % 60;
-
-  // @todo time since boot, does it even make sense?
-  // msg.header.stamp.sec = (int32_t)seconds;
-  // msg.header.stamp.nanosec = (int32_t)seconds;
-}
 
 rcl_publisher_t publisher;
 sensor_msgs__msg__Range range_msg;
