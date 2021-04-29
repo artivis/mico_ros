@@ -13,6 +13,19 @@ namespace micoros {
 // 9 characters + null terminating
 constexpr char PICO_FRAME[10] = "pico_link";
 
+// 17 characters + null terminating
+constexpr char SONAR_0_FRAME[18] = "pico_sonar_0_link";
+constexpr char SONAR_1_FRAME[18] = "pico_sonar_1_link";
+constexpr char SONAR_2_FRAME[18] = "pico_sonar_2_link";
+constexpr char SONAR_3_FRAME[18] = "pico_sonar_3_link";
+
+// Max reading frequency for the sonar.
+// Based on the hc-sr04 module datasheet,
+// the max echo is 36ms if there is no obstacle,
+// to which one adds one trigger duration 10ms.
+// 1/0.046=21.7Hz, rounded to 20Hz.
+#define SONAR_FREQ 20 // Hz
+
 // #define I2C_PORT i2c0
 #define I2C_PORT i2c_default // i2c1
 #define I2C_FREQ 400 * 1000

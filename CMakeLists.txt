@@ -6,6 +6,10 @@ project(mico_ros C CXX)
 
 pico_sdk_init()
 
+######################
+## Temperature node ##
+######################
+
 add_executable(temperature_node
   src/temperature_node.cpp
   src/pico_ros.c
@@ -38,3 +42,40 @@ target_compile_definitions(temperature_node
 
 # Generate UF2
 pico_add_extra_outputs(temperature_node)
+
+################
+## Range node ##
+################
+
+add_executable(range_node
+  src/range_node.cpp
+  src/pico_ros.c
+)
+target_link_libraries(range_node
+  hardware_adc
+  pico_stdlib
+  ${PROJECT_SOURCE_DIR}/microros/libmicroros.a
+)
+target_include_directories(range_node PUBLIC
+  microros/include
+  include
+)
+set_target_properties(range_node PROPERTIES
+  C_STANDARD 11
+  CXX_STANDARD 17
+  CXX_STANDARD_REQUIRED YES
+  CXX_EXTENSIONS NO
+)
+
+# Configure Pico
+pico_enable_stdio_usb(range_node 1)
+pico_enable_stdio_uart(range_node 0)
+
+target_compile_definitions(range_node
+  PUBLIC PICO_UART_ENABLE_CRLF_SUPPORT=0
+  PUBLIC PICO_STDIO_ENABLE_CRLF_SUPPORT=0
+  PUBLIC PICO_STDIO_DEFAULT_CRLF=0
+)
+
+# Generate UF2
+pico_add_extra_outputs(range_node)
