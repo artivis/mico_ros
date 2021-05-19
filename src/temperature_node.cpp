@@ -21,7 +21,7 @@ sensor_msgs__msg__Temperature temperature_msg;
 void timer_callback(rcl_timer_t *timer, int64_t /*last_call_time*/) {
   if (timer) {
     temperature_msg.temperature = read_onboard_temperature();
-    fill_msg_stamp(temperature_msg);
+    fill_msg_stamp(temperature_msg.header.stamp);
     RCSOFTCHECK(rcl_publish(&temperature_publisher, &temperature_msg, NULL));
   } else {
     printf("Failed to publish onboard temperature. Continuing.\n");
@@ -29,7 +29,15 @@ void timer_callback(rcl_timer_t *timer, int64_t /*last_call_time*/) {
 }
 
 int main() {
-  stdio_init_all();
+
+  rmw_uros_set_custom_transport(
+		true,
+		NULL,
+		pico_serial_transport_open,
+		pico_serial_transport_close,
+		pico_serial_transport_write,
+		pico_serial_transport_read
+	);
 
   gpio_init(LED_PIN);
   gpio_set_dir(LED_PIN, GPIO_OUT);
@@ -42,6 +50,23 @@ int main() {
 
   rcl_timer_t timer;
   rclc_executor_t executor;
+
+  // Wait for agent successful ping for 2 minutes.
+  const int timeout_ms = 1000;
+  const uint8_t attempts = 120;
+
+  rcl_ret_t ret = rmw_uros_ping_agent(timeout_ms, attempts);
+
+  if (ret != RCL_RET_OK) {
+    while (true) {
+      gpio_put(LED_PIN, 1);
+      sleep_ms(500);
+      gpio_put(LED_PIN, 0);
+      sleep_ms(500);
+    }
+    // Unreachable agent, exiting program.
+    return ret;
+  }
 
   allocator = rcl_get_default_allocator();
   RCCHECK(rclc_support_init(&support, 0, NULL, &allocator));
