@@ -1,18 +1,32 @@
 #ifndef _MICO_ROS_MICO_ROS_ROS_UTILS_H_
 #define _MICO_ROS_MICO_ROS_ROS_UTILS_H_
 
+#include <rmw_uros/options.h>
+#include <time.h>
+
+extern "C" {
+  #include "mico_ros/pico_uart_transports.h"
+}
+
+extern "C" int clock_gettime(clockid_t unused, struct timespec *tp);
+
+#include <std_msgs/msg/header.h>
 
 namespace micoros {
 
-template<typename Msg>
-void fill_msg_stamp(Msg& msg) {
-  // absolute_time_t now = get_absolute_time();
-  // absolute_time_t milliseconds = (now / 1000) % 1000;
-  // absolute_time_t seconds = (((now / 1000) - milliseconds) / 1000) % 60;
+/**
+ * @brief Fill the timestamp message using the current onboard time.
+ *
+ * @tparam Msg
+ * @param msg The input message to fill.
+ */
+inline void fill_msg_stamp(builtin_interfaces__msg__Time& msg) {
 
-  // @todo time since boot, does it even make sense?
-  // msg.header.stamp.sec = (int32_t)seconds;
-  // msg.header.stamp.nanosec = (int32_t)seconds;
+  timespec tv = {0};
+  clock_gettime(0, &tv);
+
+  msg.sec = tv.tv_sec;
+  msg.nanosec = tv.tv_nsec;
 }
 
 } // namespace micoros

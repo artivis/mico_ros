@@ -1,3 +1,10 @@
+/**
+ * @file range_node.cpp
+ * @author Jeremie Deray
+ * @note Accompanying blog post at artivis.github.io/post/2021/pi-pico-uros-sonar
+ * @date 2021-05-19
+ */
+
 #include "mico_ros/pico_utils.h"
 #include "mico_ros/macro.h"
 #include "mico_ros/ros_utils.h"
@@ -9,7 +16,7 @@
 #include <rcl/error_handling.h>
 #include <rclc/rclc.h>
 #include <rclc/executor.h>
-
+#include <rmw_uros/options.h>
 #include <sensor_msgs/msg/range.h>
 
 using namespace micoros;
@@ -25,7 +32,7 @@ sensor_msgs__msg__Range range_msg;
 void timer_callback(rcl_timer_t *timer, int64_t /*last_call_time*/) {
   if (timer) {
     range_msg.range = range_sensor.read();
-    fill_msg_stamp(range_msg);
+    fill_msg_stamp(range_msg.header.stamp);
     RCSOFTCHECK(rcl_publish(&publisher, &range_msg, NULL));
   } else {
     printf("Failed to publish range. Continuing.\n");
@@ -33,7 +40,15 @@ void timer_callback(rcl_timer_t *timer, int64_t /*last_call_time*/) {
 }
 
 int main() {
-  stdio_init_all();
+
+  rmw_uros_set_custom_transport(
+		true,
+		NULL,
+		pico_serial_transport_open,
+		pico_serial_transport_close,
+		pico_serial_transport_write,
+		pico_serial_transport_read
+	);
 
   gpio_init(LED_PIN);
   gpio_set_dir(LED_PIN, GPIO_OUT);
@@ -44,6 +59,23 @@ int main() {
 
   rcl_timer_t timer;
   rclc_executor_t executor;
+
+  // Wait for agent successful ping for 2 minutes.
+  const int timeout_ms = 1000;
+  const uint8_t attempts = 120;
+
+  rcl_ret_t ret = rmw_uros_ping_agent(timeout_ms, attempts);
+
+  if (ret != RCL_RET_OK) {
+    while (true) {
+      gpio_put(LED_PIN, 1);
+      sleep_ms(500);
+      gpio_put(LED_PIN, 0);
+      sleep_ms(500);
+    }
+    // Unreachable agent, exiting program.
+    return ret;
+  }
 
   allocator = rcl_get_default_allocator();
   RCCHECK(rclc_support_init(&support, 0, NULL, &allocator));
@@ -73,6 +105,13 @@ int main() {
 
   RCCHECK(rclc_executor_init(&executor, &support.context, 1, &allocator));
   RCCHECK(rclc_executor_add_timer(&executor, &timer));
+
+  // Synchronize time
+  // @note no such thing on the pico atm
+  // RCCHECK(rmw_uros_sync_session(timeout_ms));
+  // int64_t time_ms = rmw_uros_epoch_millis();
+  // time_t time_s = time_ms/1000;
+  // //setTime(time_s);
 
   // parameters for the hc-sr04 module
 

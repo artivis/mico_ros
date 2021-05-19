@@ -10,17 +10,17 @@ namespace micoros {
  */
 struct RangeSensor {
 
-/**
- * @brief Construct a new Range Sensor object.
- *
- * @param echo_pin The echo GPIO pin.
- * @param trigger_pin The trigger GPIO pin.
- */
-RangeSensor(
-    unsigned int echo_pin,
-    unsigned int trigger_pin,
-    unsigned int trigger_duration = 10
-)
+  /**
+   * @brief Construct a new Range Sensor object.
+   *
+   * @param echo_pin The echo GPIO pin.
+   * @param trigger_pin The trigger GPIO pin.
+   */
+  RangeSensor(
+      unsigned int echo_pin,
+      unsigned int trigger_pin,
+      unsigned int trigger_duration = 10
+  )
   : echo_pin_(echo_pin)
   , trigger_pin_(trigger_pin)
   , trigger_duration_(trigger_duration) {
